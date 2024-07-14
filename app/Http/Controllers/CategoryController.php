@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
-use App\Http\Requests\UpdateCategoryRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Svg\Tag\Rect;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -35,7 +36,7 @@ class CategoryController extends Controller
     public function create(Request $request)
     {
         $query = Category::where('is_deleted', 0);
-        $categories = $query->orderBy('category_id', 'desc')->limit(10)->get();
+        $categories = $query->orderByRaw("SUBSTR(category_name, 1, 1)")->get();
 
         session(['view_title' => 'New Category']);
         return view('Inventory.category-form', compact('categories'));
@@ -47,7 +48,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_name' => 'required|unique:category',
+            'category_name' => 'required|unique:category,category_name',
             'description' => 'nullable|string',
             'status' => 'nullable|boolean',
         ]);
@@ -76,25 +77,49 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Category $category)
+    public function edit($category_id)
     {
-        //
+        $category = Category::findOrFail($category_id);
+
+        if (!$category) {
+            return redirect()->route('Inventory.categories')->with('message', 'Category not found.');
+        }
+
+        session(['view_title' => 'Edit Category']);
+        return view('Inventory.category-form', compact('category'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Category $category)
+    public function update(Request $request, $category_id)
     {
-        //
+        $request->validate([
+            'category_name' => 'required|string|max:255|unique:category,category_name,' . $category_id . ',category_id',
+            'description' => 'nullable|string',
+            'status' => 'boolean',
+        ]);
+    
+        $category = Category::findOrFail($category_id);
+        $category->category_name = $request->category_name;
+        $category->description = $request->description;
+        $category->status = $request->status;   
+        $category->save();
+    
+        return response()->json(['message' => 'Category updated successfully!']);
     }
+    
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
-    {
-        //
+    public function delete($category_id)
+    {    
+        $category = Category::findOrFail($category_id);
+        $category->is_deleted = 1;   
+        $category->save();
+    
+        return response()->json(['message' => 'Category deleted successfully!']);
     }
 
     // FETCB CATEGORIES

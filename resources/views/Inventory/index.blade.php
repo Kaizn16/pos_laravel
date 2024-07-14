@@ -10,7 +10,6 @@
 
     <div class="inventory-tab-links">
         <a href="{{ route('Inventory.products') }}" role="tab" aria-controls="product" aria-selected="false">Products</a>
-        <a href="{{ route('Inventory.stocks') }}" role="tab" aria-controls="stock" aria-selected="false">Stock</a>
         <a href="{{ route('Inventory.suppliers') }}" role="tab" aria-controls="supplier" aria-selected="false">Suppliers</a>
         <a href="{{ route('Inventory.suppliers') }}" role="tab" aria-controls="Settings" aria-selected="false">Settings</a>
     </div>

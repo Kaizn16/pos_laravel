@@ -13,9 +13,17 @@ class Stock extends Model
     protected $table = 'stock';
     protected $primaryKey = 'stock_id';
     protected $fillable = [
+        'product_id',
         'supplier_id',
-        'stock_amount'
+        'stock_amount',
+        'total_stock',
+        'expiration_date'
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 
     public function supplier()
     {

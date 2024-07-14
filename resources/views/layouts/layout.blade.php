@@ -43,5 +43,6 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
     </div>
     <script src="{{ asset('assets/js/main.js') }}"></script>
     <script src="{{ asset('assets/js/toastr.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sweetalert2-11.js') }}"></script>
 </body>
 </html>

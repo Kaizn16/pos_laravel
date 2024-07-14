@@ -21,7 +21,10 @@
     --box4-color: #31f894;
     --title-icon-color: #fff;
     --input-icon-invert: invert(0);
-    
+    --stock-bar-bg: #ccc;
+    --stock-bar-text-color: #fff;
+    --sales-container-text-color: #fff;
+
     /* ====== Transition ====== */
     --tran-05: all 0.5s ease;
     --tran-03: all 0.3s ease;
@@ -45,6 +48,9 @@ body.dark{
     --box4-color: #3A3B3C;
     --title-icon-color: #CCC;
     --input-icon-invert: invert(1);
+    --stock-bar-bg: #fff;
+    --stock-bar-text-color: #fff;
+    --sales-container-text-color: #CCC;
 }
 /* === Custom Scroll Bar CSS === */
 ::-webkit-scrollbar {
@@ -273,10 +279,9 @@ body.dark .switch:before{
     border-radius: 50%;
 }
 .main-content{
-    padding-top: 20px;
+    padding-top: 16px;
     display: flex;
     flex-direction: column;
-    gap: 32px;
 }
 .main-content .title{
     display: flex;
@@ -508,6 +513,227 @@ body.dark .switch:before{
     color: var(--text-color);
     border-bottom: 1px solid var(--border-color);
 }
+
+/* SALES */
+
+.sales-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: 12px;
+    width: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.sales-container .box {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    transition: var(--tran-03);
+    color: var(--sales-container-text-color);
+    border-color: 2px solid var(--border-color);
+}
+
+.sales-container .ProductsContainer {
+    width: calc(60% - 6px);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sales-container .ProductsContainer .header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    padding: 12px;
+}
+
+
+.sales-container .ProductsContainer .header .searchFilter input {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    outline: none;
+    background-color: var(--panel-color);
+}
+
+.sales-container .ProductsContainer .header .categoryFilter {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    width: 100%;
+}
+
+.sales-container .ProductsContainer .header .categoryFilter .filterList {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-height: 80px;
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+    gap: 4px;
+}
+
+.sales-container .ProductsContainer .header .categoryFilter .filterList::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.sales-container .ProductsContainer .header .categoryFilter .filterList::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.sales-container .ProductsContainer .header .categoryFilter .filterList::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px; 
+}
+
+.sales-container .ProductsContainer .header .categoryFilter .filterList::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
+}
+
+.sales-container .ProductsContainer .header .categoryFilter strong {
+    font-size: 14px;
+    color: var(--sales-container-text-color);
+    padding: 6px;
+}
+
+.sales-container .ProductsContainer .header .categoryFilter .filterList .categoryItem {
+    border-radius: 6px;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    padding: 4px;
+    background-color: var(--panel-color);
+}
+
+.sales-container .ProductsContainer .header .categoryFilter .filterList .categoryItem:hover {
+   background-color: var(--toggle-color);
+}
+
+.sales-container .ProductsContainer .header .categoryFilter .filterList .categoryItem.active {
+    background-color: var(--toggle-color);
+ }
+
+
+.sales-container .ProductsContainer .ProductList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    align-items: start;
+    justify-content: start;
+    height: 600px;
+    overflow-y: auto;   
+    padding: 12px;
+    width: 100%;
+    gap: 6px;
+    background-color: var(--primary-color);
+    border-top: 1px solid var(--border-color);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+
+.sales-container .ProductsContainer .ProductList::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.sales-container .ProductsContainer .ProductList::-webkit-scrollbar-track {
+    background: var(--primary-color);
+}
+
+.sales-container .ProductsContainer .ProductList::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 6px;
+    padding: 2px; 
+}
+
+.sales-container .ProductsContainer .ProductList::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
+}
+
+
+.sales-container .ProductsContainer .ProductList .productBox {
+    height: 180px;
+    width: 180px;
+    max-height: 180px;
+    max-width: 180px;
+    border-radius: 6px;
+    padding: 4px;
+    background-color: var(--box2-color);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    backdrop-filter: blur(6.4px);
+    -webkit-backdrop-filter: blur(6.4px);
+    transition: transform 0.3s ease-in-out;
+}
+
+.sales-container .ProductsContainer .ProductList .productBox:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+.sales-container .ProductsContainer .ProductList .productBox .product-detail-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+}
+
+.sales-container .ProductsContainer .ProductList .productBox .product-detail-header strong {
+    font-size: 12px;
+    margin-right: auto;
+    color: var(--text-color);
+}
+
+.sales-container .ProductsContainer .ProductList .productBox .product-detail-header strong span {
+    display: inline-block; 
+    width: 10px; 
+    height: 10px; 
+    background-color: black; 
+    border-radius: 50%;
+}
+
+.sales-container .ProductsContainer .ProductList .productBox .product-detail-header img {
+    height: 64px;
+    width: 64px;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.sales-container .ProductsContainer .ProductList .productBox .product-details {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    overflow-y: auto;
+    color: var(--text-color);
+}
+
+
+.sales-container .CartContainer {
+    width: calc(40% - 6px);
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+}
+
+
+/* SALES */
+
 
 /* INVENTORY */
 
@@ -752,6 +978,27 @@ body.dark .switch:before{
 
 .table-container table td span.status-disabled {
     background: rgba(255, 0, 0, 0.8);
+}
+
+.table-container table td .stock-bar-container {
+    width: 100%;
+    border-radius: 8px;
+    background-color: var(--stock-bar-bg);
+    border-color: var(--border-color);
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 18px;
+}
+
+.table-container table td .stock-bar-container .stock-bar {
+    text-align: right;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--stock-bar-text-color);
+    background-color: rgb(39, 180, 39);
+    width: 90%;
+    height: 100%;
+    padding-right: 4px;
 }
 
 .table-container table td button{
@@ -1118,8 +1365,8 @@ body.dark .switch:before{
     padding: 4px;
     width: 100%;
     overflow-y: auto;
-    max-height: 700px;
-    height: 700px;
+    max-height: 600px;
+    height: 600px;
     margin-top: 12px;
 }
 
@@ -1142,9 +1389,16 @@ body.dark .switch:before{
 
 /* RESONSIVE USING MEDIA QUERY */
 
+@media (max-height: 720px) {
+    .sales-container .ProductsContainer .ProductList,
+    .sales-container .CartContainer {
+        height: 400px;
+    }
+}
+
 @media (max-width: 1920px) {
     .form-content .form-container {
-        width: 75%;
+        width: 70%;
     }
     .form-content .form-container form {
         width: 100%;
@@ -1241,6 +1495,14 @@ body.dark .switch:before{
         margin-top: 15px;
     }
     
+    
+    .sales-container .ProductsContainer {
+        width: 100%;
+    }
+
+    .sales-container .CartContainer {
+        width: 100%;
+    }
 
     .main-content .inventory-tab-links a {
         width: calc(100% / 2 - 15px);

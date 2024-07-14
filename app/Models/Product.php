@@ -17,10 +17,7 @@ class Product extends Model
         'product_code',
         'purchase_price',
         'selling_price',
-        'uom', // Unit of Measure per item that you want to sell
-        'expiration_date',
-        'stock_id',
-        'supplier_id',
+        'uom_id', // Unit of Measure per item that you want to sell
         'product_image',
         'status',
         'is_deleted'
@@ -31,14 +28,8 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function supplier()
+    public function uom()
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id');
+        return $this->belongsTo(UnitOfMeasure::class, 'uom_id');
     }
-
-    public function stock() 
-    {
-        return $this->belongsTo(Stock::class, 'stock_id');
-    }
-
 }
