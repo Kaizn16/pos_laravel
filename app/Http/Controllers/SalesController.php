@@ -76,9 +76,6 @@ class SalesController extends Controller
             'stocks' => $stocks,
         ];
 
-
-        Log::info('Category ID: ' . $request->input('category_id'));
-        Log::info('Search Term: ' . $request->input('search_term'));
         // Returning the response as JSON
         return response()->json($data);
     }

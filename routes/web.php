@@ -1,8 +1,11 @@
 <?php
+
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
@@ -35,6 +38,12 @@ Route::prefix('Sales')->group(function () {
     Route::get('/', [SalesController::class, 'index'])->name('sales.index');
     Route::get('/fetchProducts', [SalesController::class, 'show'])->name('sales.get');
     Route::get('/SelectedProduct/{product_id}/View', [SalesController::class, 'preview'])->name('sales.view');
+    Route::get('/NewTransaction', [TransactionController::class, 'generateNewTransaction'])->name('sales.new_transaction');
+    Route::get('/Transaction/{transaction_id}/Cart', [CartController::class, 'show'])->name('cart.get');
+    Route::post('/Transaction/Cart/Add', [CartController::class, 'store'])->name('cart.store');
+    Route::put('/Transaction/Cart/{product_id}/AdjustQuantity', [CartController::class, 'update'])->name('cart.update');
+    Route::patch('/Transaction/Cart/{product_id}/Remove', [CartController::class, 'delete'])->name('cart.delete');
+    Route::patch('/Transaction/Cart/{transaction_id}/Clear', [CartController::class, 'clear'])->name('cart.clear');
 });
 
 

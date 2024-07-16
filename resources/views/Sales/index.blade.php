@@ -3,8 +3,8 @@
 <div class="main-content">
     <div class="overview">
         <div class="title">
-            <i class="uil uil-money-withdrawal"></i>
-            <span class="text">Company Name</span>
+            <i class="uil uil-store"></i>
+            <span class="text">LONA'S BEAUTY STORE</span>
         </div>
     </div>
 
@@ -14,6 +14,7 @@
             <div class="header">
                 
                 <div class="searchFilter">
+                    <i class="uil uil-search searchIcon" title="Search..."></i>
                     <input type="text" id="search_product" name="search_product" placeholder="Search Product">
                 </div>
 
@@ -32,7 +33,49 @@
         </div>
 
         <div class="box CartContainer">
-            2
+            <div class="CartProductList">
+                <div class="cartHeader">
+                    <strong><i class="uil uil-shopping-cart"></i>Cart</strong>
+                    <input type="hidden" name="transaction_id" id="transaction_id" value="">
+                    <strong>Transaction: <span id="transaction_number" data-transaction_number=""></span></strong>
+                </div>
+                <div class="cartBody">
+                    <table class="CartTable">
+
+                        <thead>
+                            <tr class="heading">
+                                <th>IMG</th>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th><i class="uil uil-setting"></i></th>
+                            </tr>
+                        </thead>
+            
+                        <tbody class="cartData">
+                
+                        </tbody>
+            
+                    </table>
+                </div>
+                <footer class="cartFooter">
+                    <div class="cartFooterDetail">
+                        <strong>Total Items in Cart: <span id="cartTotalItem">0</span></strong>
+                        <strong>Total: 	₱ <span id="CartTotalAmount"> 00.00</span></strong>
+                    </div>
+                    <div class="cartBTN">
+                        <button class="resetCartBTN"><i class="uil uil-trash-alt cart"></i><span>Clear Cart</span><i class="uil uil-check clear"></i></button>
+                        <button class="checkoutBTN">
+                            <strong class="cart">
+                                <i class="uil uil-list-ui-alt"></i><i class="uil uil-shopping-cart"></i>
+                            </strong>
+                            <span>Checkout</span>
+                            <i class="uil uil-check check"></i>
+                        </button>
+                    </div>
+                </footer>
+            </div>
         </div>
 
     </section>
@@ -147,9 +190,10 @@
             }, doneTypingInterval);
         });
 
-        // WHEN SELECTING PRODUCT
+        // WHEN SELECTING PRODUCT TO ADD IN THE CART
         $(document).on('click', '.productBox', function() {
             let product_id = $(this).data('product_id');
+            let transaction_id = $('#transaction_id').val();
 
             toastr.options = {
                 "progressBar": true,
@@ -196,8 +240,9 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
 
+                                let selling_price = product.selling_price;
                                 let quantity = parseInt($('#quantity').val(), 10);
-                                let total = product.selling_price * quantity;
+                                let total = selling_price * quantity;
 
 
                                 if(stock.some(item => item.product_id === product.product_id && quantity > item.stock_amount)) {
@@ -205,7 +250,23 @@
                                     return;
                                 }
 
-                                console.log('Added to Cart Product ID: ' + product_id + ', Quantity: ' + quantity + ', Price: ' + product.selling_price + ', Total: ' + total);
+                                $.ajax({
+                                    url: '{{ route('cart.store') }}',
+                                    type: 'POST',
+                                    data: {
+                                        transaction_id: transaction_id,
+                                        product_id: product_id,
+                                        quantity: quantity,
+                                        product_price: selling_price,
+                                        total: total
+                                    },
+                                    success: function(response) {
+                                        fetchCart(transaction_id);
+                                    },
+                                    error: function(xhr) {
+                                        toastr.error('Error adding product to cart:', xhr.statusText);
+                                    }
+                                });
                             }
                         });
 
@@ -223,9 +284,222 @@
                 }
             });
         });
-
-
         fetchProducts(); // INITIALIZE DISPLAY
     });
+
+    // FETCHING THE CART
+    function fetchCart(transaction_id) {
+        $.ajax({
+            url: '/Sales/Transaction/' + transaction_id + '/Cart',
+            type: 'GET',
+            success: function(response) {
+                var cartBodyContent = '';
+                let cartTotalAmount = 0.00;
+
+                if (Array.isArray(response) && response.length > 0) {
+                    response.forEach(cart => {
+
+                        cartTotalAmount += parseFloat(cart.total);
+
+                        cartBodyContent += 
+                        `<tr>
+                            <td><img src="{{ asset('storage/product_image/') }}/${cart.product.product_image}" style="width: 54px; height: 54px"></td>
+                            <td><span class='truncated-text' title="${cart.product.product_name}">${cart.product.product_name}</span></td>
+                            <td>₱ ${parseFloat(cart.product_price).toFixed(2)}</td>
+                            <td>
+                                <i class="uil uil-minus minusQuantity" title="Decrement" onclick="adjustQuantity(${cart.product_id}, 'decrease')"></i>
+                                <span>  ${cart.quantity}  </span>
+                                <i class="uil uil-plus addQuantity" title="Increment" onclick="adjustQuantity(${cart.product_id}, 'increase')"></i>
+                            </td>
+                            <td>₱ ${parseFloat(cart.total).toFixed(2)}</td>
+                            <td><i class="uil uil-times-square removeCart" title="Remove" onclick="RemoveProduct(${cart.product_id})"></td>
+                        </tr>`;
+                    });
+
+                    $('.cartData').html(cartBodyContent);
+                    $('#cartTotalItem').text(response.length);
+                    $('#CartTotalAmount').text(cartTotalAmount.toFixed(2));
+                    
+                } else {
+
+                    cartBodyContent = `<tr><td style="padding-top: 16rem; border: none" colspan="6"><strong>${response.message}</strong></td></tr>`;
+                    $('.cartData').html(cartBodyContent);
+                    $('#cartTotalItem').text('0');
+                    $('#CartTotalAmount').text(cartTotalAmount.toFixed(2));
+
+                }
+            },
+            error: function(xhr) {
+                console.log(xhr);
+                Swal.fire(
+                    'Error!',
+                    'Failed to fetch cart.',
+                    'error'
+                );
+            }
+        });
+    }
+
+    function adjustQuantity(product_id, action) {
+        let transaction_id = $('#transaction_id').val();
+
+        $.ajax({
+            url: `/Sales/Transaction/Cart/${product_id}/AdjustQuantity`,
+            type: 'PUT',
+            data: {
+                transaction_id: transaction_id,
+                action: action
+            },
+            success: function(response) {
+                fetchCart(transaction_id);
+            },
+            error: function(xhr, status, error) {
+                toastr.error('Error updating quantity');
+            }
+        });
+    }
+
+
+    // REMOVE PRODUCT
+    function RemoveProduct(product_id) {
+        let transaction_id = $('#transaction_id').val();
+
+        $.ajax({
+            url: '/Sales/Transaction/Cart/' + product_id + '/Remove',
+            type: 'POST',
+            headers: {
+                'X-HTTP-Method-Override': 'PATCH'
+            },
+            success: function(response) {
+                if(response.message == 'Product removed from cart successfully.') 
+                {
+                    toastr.success(response.message);
+                    fetchCart(transaction_id);
+                } 
+                else 
+                {
+                    toastr.warning(response.message);
+                }
+            },
+            error: function(xhr) {
+                Swal.fire(
+                    'Error!',
+                    'Failed to remove product from the cart.',
+                    'error'
+                );
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        const searchIcon = document.querySelector('.searchIcon');
+        const searchFilter = document.querySelector('.searchFilter');
+
+        searchIcon.addEventListener('click', () => {
+            searchFilter.classList.toggle('expanded');
+        });
+
+        // CHECKOUT
+        document.querySelector('.checkoutBTN').addEventListener('click', function() {
+
+            var cartRows = document.querySelectorAll('.cartData tr');
+            var transaction_id = $('#transaction_id').val();
+            var transaction_number = $('#transaction_number').attr('data-transaction_number');
+            this.disabled = true;
+
+            toastr.options = {
+                "progressBar": true,
+                "closeButton": true,
+            }
+
+            if (cartRows.length === 0) {
+                toastr.warning('The Cart is empty!');
+                return;
+            }
+
+            this.classList.toggle('activated');
+
+            setTimeout(() => {
+                this.disabled = false;
+                this.classList.remove('activated');
+            }, 3500);
+
+        });
+
+        // CLEAR CART
+        document.querySelector('.resetCartBTN').addEventListener('click', function() {
+
+            var transaction_id = $('#transaction_id').val();
+
+            this.disabled = true;
+            this.classList.add('activated');
+
+            toastr.options = {
+                "progressBar": true,
+                "closeButton": true,
+            }
+
+            
+            $.ajax({
+                url: '/Sales/Transaction/Cart/' + transaction_id + '/Clear',
+                type: 'POST',
+                headers: {
+                    'X-HTTP-Method-Override': 'PATCH'
+                },
+                success: function(response) {
+                    if(response.message == 'Cart cleared successfully.') 
+                    {
+                        toastr.success(response.message);
+                        fetchCart(transaction_id);
+                    } 
+                    else 
+                    {
+                        toastr.info(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire(
+                        'Error!',
+                        'Failed to clear cart.',
+                        'error'
+                    );
+                }
+            });
+
+            setTimeout(() => {
+                this.disabled = false;
+                this.classList.remove('activated');
+            }, 3500);
+
+        });
+    });
+
+    // GENERATE/LOAD Transaction
+    function GenerateNewTransaction() {
+        $.ajax({
+            url: '{{ route('sales.new_transaction') }}',
+            type: 'GET',
+            success: function(response) {
+                if(response.transaction_number) {
+                    let transaction_id = response.transaction_id;
+                    let transaction_number = response.transaction_number;
+
+                    $('#transaction_number').text(transaction_number);
+                    $('#transaction_id').val(transaction_id);
+                    $('#transaction_number').attr('data-transaction_number', transaction_number);
+
+                    fetchCart(transaction_id);
+
+                } else {
+                    console.error('Failed to generate transaction number');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+    GenerateNewTransaction(); // Generate New Transaction Number
 </script>
 @endsection
