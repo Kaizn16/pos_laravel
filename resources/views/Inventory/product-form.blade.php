@@ -55,12 +55,12 @@
                 </div>                
     
                 <div class="form-group">
-                    <input type="number" name="purchase_price" min="1" id="purchasePrice" placeholder="Purchase Price" value="{{ old('purchase_price', isset($product) ? $product->purchase_price : '') }}">
+                    <input type="number" name="purchase_price" min="1" id="purchasePrice" placeholder="Purchase Price" value="{{ old('purchase_price', isset($product) ? $product->purchase_price : '') }}" onkeypress="return isNumberKey(event)">
                     <label class="form-label" for="purchasePrice">Purchase Price</label>
                 </div>
     
                 <div class="form-group">
-                    <input type="number" name="selling_price" min="1" id="sellingPrice" placeholder="Selling Price" value="{{ old('selling_price', isset($product) ? $product->selling_price : '') }}">
+                    <input type="number" name="selling_price" min="1" id="sellingPrice" placeholder="Selling Price" value="{{ old('selling_price', isset($product) ? $product->selling_price : '') }}" onkeypress="return isNumberKey(event)">
                     <label class="form-label" for="sellingPrice">Selling Price</label>
                 </div>
     
@@ -115,13 +115,13 @@
 
     document.getElementById('categorySelect').addEventListener('change', function() {
         if (this.value === 'NewCategory') {
-            window.location.href = "{{ route('Inventory.uom') }}";
+            window.location.href = "{{ route('category.create') }}";
         }
     });
 
     document.getElementById('uomSelect').addEventListener('change', function() {
         if (this.value === 'NewUOM') {
-            window.location.href = "{{ route('category.create') }}";
+            window.location.href = "{{ route('uom.create') }}";
         }
     });
 
@@ -220,6 +220,19 @@
             }
         });
     });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        // Allow: backspace, delete, left arrow, right arrow, tab, and decimal point
+        if (charCode === 8 || charCode === 46 || charCode === 37 || charCode === 39 || charCode === 9) {
+            return true;
+        }
+        // Ensure that it is a number and stop the keypress if it is not
+        if (charCode < 48 || charCode > 57) {
+            return false;
+        }
+        return true;
+    }
 
     // Function to fetch and display products recenlty added
     function fetchProducts() {

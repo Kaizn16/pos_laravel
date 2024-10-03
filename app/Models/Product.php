@@ -32,4 +32,9 @@ class Product extends Model
     {
         return $this->belongsTo(UnitOfMeasure::class, 'uom_id');
     }
+
+    public function purchases()
+    {
+        return $this->hasMany(Purchases::class, 'product_id', 'product_id');
+    }
 }

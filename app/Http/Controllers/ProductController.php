@@ -175,7 +175,7 @@ class ProductController extends Controller
             // History Request
             if ($request->has('history')) {
                 $products = $query->with('category', 'uom')
-                                ->orderBy('product_id', 'asc')
+                                ->orderBy('product_id', 'desc')
                                 ->limit(15)
                                 ->get();
 

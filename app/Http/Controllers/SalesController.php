@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Customer;
+use App\Models\Discount;
+use App\Models\Gender;
+use App\Models\PaymentMethod;
+use App\Models\Transaction;
+use App\Models\TransactionDetail;
 use App\Models\Stock;
 use Illuminate\Support\Facades\Log;
 
@@ -15,7 +21,14 @@ class SalesController extends Controller
      */
     public function index()
     {
-        return view('Sales.index');
+
+        $customers = Customer::where('is_deleted', 0)->orderBy('customer_id', 'asc')->get();
+
+        $discounts = Discount::where('is_deleted', 0)->orderBy('discount_id', 'asc')->get();
+  
+        $payment_methods = PaymentMethod::where('is_deleted', 0)->orderBy('payment_method_id', 'asc')->get();
+
+        return view('Sales.index', compact("customers", "discounts", "payment_methods"));
     }
 
     /**

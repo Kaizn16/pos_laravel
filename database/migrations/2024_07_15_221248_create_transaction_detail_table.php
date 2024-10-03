@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transaction_detail', function (Blueprint $table) {
-            $table->id('transcation_detail_id');
-            $table->unsignedBigInteger('transcation_id');
+            $table->id('transaction_detail_id');
+            $table->unsignedBigInteger('transaction_id');
             $table->unsignedBigInteger('product_id');
             $table->decimal('product_price', 10, 2);
             $table->bigInteger('quantity');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('is_deleted')->default(0);
             $table->timestamps();
 
-            $table->foreign('transcation_id')
+            $table->foreign('transaction_id')
             ->references('transaction_id')
             ->on('transaction')
             ->onDelete('cascade')

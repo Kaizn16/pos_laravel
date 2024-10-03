@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Stock;
+use App\Models\Category;
+use App\Models\Purchases;
+use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
 {
@@ -11,89 +15,98 @@ class InventoryController extends Controller
      */
     public function index()
     {
+        $categories = Category::all();
+
+        $stockValues = [];
+        $stockBorderColor = 'rgba(255, 255, 255, 2)';
+
+        $backgroundColorSet = [
+            'rgba(255, 182, 193, 1)',   // Pastel pink
+            'rgba(255, 223, 186, 1)',   // Pastel orange
+            'rgba(173, 216, 230, 1)',   // Pastel blue
+            'rgba(144, 238, 144, 1)',   // Pastel green
+            'rgba(221, 160, 221, 1)',   // Pastel purple
+            'rgba(255, 255, 224, 1)',   // Pastel yellow
+            'rgba(255, 192, 203, 1)',   // Pastel pink (slightly different shade)
+            'rgba(255, 224, 189, 1)',   // Pastel peach
+            'rgba(204, 204, 255, 1)',   // Pastel lavender
+            'rgba(204, 255, 255, 1)',   // Pastel cyan
+            'rgba(255, 153, 153, 1)',   // Pastel red RAINBOW
+            'rgba(255, 204, 153, 1)',   // Pastel orange RAINBOW
+            'rgba(153, 204, 255, 1)',   // Pastel blue RAINBOW
+            'rgba(153, 255, 153, 1)',   // Pastel green RAINBOW
+            'rgba(255, 153, 255, 1)',   // Pastel purple RAINBOW
+            'rgba(255, 255, 153, 1)',   // Pastel yellow RAINBOW
+            'rgba(153, 153, 255, 1)',   // Pastel lavender RAINBOW
+            'rgba(178, 102, 255, 1)',   // Pastel mauve RAINBOW
+            'rgba(153, 255, 255, 1)',   // Pastel cyan RAINBOW
+            'rgba(255, 178, 102, 1)',   // Pastel peach RAINBOW
+        ];
+
+        shuffle($backgroundColorSet);
+
+        $backgroundColor = [];
+        $borderColor = [];
+
+        foreach ($categories as $index => $category) {
+            $stockValue = Purchases::whereHas('product', function ($query) use ($category) {
+                $query->where('category_id', $category->category_id);
+            })->sum(DB::raw('purchase_price * stock_amount'));
+
+            $stockValues['labels'][] = $category->category_name;
+            $stockValues['datasets'][0]['data'][] = $stockValue;
+
+            // Use a predefined color (cycling through shuffled colors) for each category
+            $backgroundColor[] = $backgroundColorSet[$index % count($backgroundColorSet)];
+            $borderColor[] = $stockBorderColor;
+        }
+
         $stockValueData = [
-            'labels' => ['Rice', 'Canned Goods', 'Snacks', 'Beverages', 'Toiletries', 'Household Items', 'Chips', 'Bread', 'Sweets', 'Condiments', 'Medicine', 'Others'],
+            'labels' => $stockValues['labels'],
             'datasets' => [
                 [
                     'label' => 'Stock Value',
-                    'backgroundColor' => [
-                        'rgba(255, 0, 0, 0.4)',    // Rice
-                        'rgba(255, 128, 0, 0.4)',    // Canned Goods
-                        'rgba(255, 255, 0, 0.4)',    // Snacks
-                        'rgba(128, 255, 0, 0.4)',    // Beverages
-                        'rgba(0, 255, 0, 0.4)',   // Toiletries
-                        'rgba(0, 255, 128, 0.4)',    // Household Items
-                        'rgba(0, 255, 255, 0.4)',    // Chips
-                        'rgba(0, 128, 255, 0.4)',    // Bread
-                        'rgba(0, 0, 255, 0.4)',    // Sweets
-                        'rgba(128, 0, 255, 0.4)',    // Condiments
-                        'rgba(255, 0, 255, 0.4)',   // Medicine
-                        'rgba(255, 0, 128, 0.4)',    // Others
-                    ],
-                    'borderColor' => [
-                        'rgba(255, 0, 0, 1)',    // Rice
-                        'rgba(255, 128, 0, 1)',    // Canned Goods
-                        'rgba(255, 255, 0, 1)',    // Snacks
-                        'rgba(128, 255, 0, 1)',    // Beverages
-                        'rgba(0, 255, 0, 1)',   // Toiletries
-                        'rgba(0, 255, 128, 1)',    // Household Items
-                        'rgba(0, 255, 255, 1)',    // Chips
-                        'rgba(0, 128, 255, 1)',    // Bread
-                        'rgba(0, 0, 255, 1)',    // Sweets
-                        'rgba(128, 0, 255, 1)',    // Condiments
-                        'rgba(255, 0, 255, 1)',   // Medicine
-                        'rgba(255, 0, 128, 1)',    // Others
-                    ],
+                    'backgroundColor' => $backgroundColor,
+                    'borderColor' => $borderColor,
                     'borderWidth' => 1,
-                    'data' => [150, 180, 160, 200, 220, 250, 300, 280, 260, 240, 220, 200],
-                ],
-            ],
-        ];        
-        
-        $stockMovementData = [
-            'labels' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            'datasets' => [
-                [
-                    'label' => 'Stock Movement',
-                    'backgroundColor' => [
-                        'rgba(0, 128, 0, 0.4)',    // January
-                        'rgba(0, 128, 128, 0.4)',    // February
-                        'rgba(0, 255, 128, 0.4)',    // March
-                        'rgba(128, 0, 128, 0.4)',    // April
-                        'rgba(128, 128, 0, 0.4)',   // May
-                        'rgba(128, 0, 0, 0.4)',    // June
-                        'rgba(128, 128, 128, 0.4)',    // July
-                        'rgba(0, 0, 0, 0.4)',    // August
-                        'rgba(0, 128, 255, 0.4)',    // September
-                        'rgba(0, 0, 128, 0.4)',    // October
-                        'rgba(255, 128, 255, 0.4)',   // November
-                        'rgba(128, 128, 255, 0.4)',    // December
-                    ],
-                    'borderColor' => [
-                        'rgba(0, 128, 0, 1)',    // January
-                        'rgba(0, 128, 128, 1)',    // February
-                        'rgba(0, 255, 128, 1)',    // March
-                        'rgba(128, 0, 128, 1)',    // April
-                        'rgba(128, 128, 0, 1)',   // May
-                        'rgba(128, 0, 0, 1)',    // June
-                        'rgba(128, 128, 128, 1)',    // July
-                        'rgba(0, 0, 0, 1)',    // August
-                        'rgba(0, 128, 255, 1)',    // September
-                        'rgba(0, 0, 128, 1)',    // October
-                        'rgba(255, 128, 255, 1)',   // November
-                        'rgba(128, 128, 255, 1)',    // December
-                    ],
-                    'borderWidth' => 1,
-                    'data' => [100, 120, 130, 140, 160, 180, 200, 220, 210, 190, 170, 150],
+                    'data' => $stockValues['datasets'][0]['data'],
                 ],
             ],
         ];
-        
+
+
+        // Fetch stock data
+        $stocks = Stock::select('stock.*', 'product.product_name')->join('product', 'stock.product_id', '=', 'product.product_id')->get();
+        $labels = $stocks->pluck('product_name')->toArray();
+        $stockLevelBackgroundColor = []; // Separate array for stock level colors
+
+        foreach ($stocks as $stock) {
+            $stockLevelBackgroundColor[] = $backgroundColorSet[$stock->product_id % count($backgroundColorSet)];
+        }
+
+        $StockLevel = [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Stock Level',
+                    'backgroundColor' => $stockLevelBackgroundColor,
+                    'borderColor' => $borderColor,
+                    'borderWidth' => 1,
+                    'data' => $stocks->pluck('stock_amount')->toArray(),
+                ],
+            ],
+        ];
+
         return view('Inventory.index', [
             'productStockValue' => json_encode($stockValueData),
-            'productStockMovement' => json_encode($stockMovementData)
+            'StockLevel' => json_encode($StockLevel)
         ]);
     }
+
+
+
+
+
 
     /**
      * Show the form for creating a new resource.

@@ -7,28 +7,57 @@
             <span class="text">Dashboard</span>
         </div>
 
-        <div class="boxes">
+        <div class="boxes boxes1">
             <div class="box box1">
-                <i>₱</i>
+                <i class="uil uil-calendar-alt"></i>
                 <span class="text">Daily Sales</span>
-                <span class="number">50,120</span>
+                <span class="number">
+                    @isset($dailySales)
+                        ₱ {{ number_format($dailySales, 2) }}
+                    @endisset
+                </span>
             </div>
             <div class="box box2">
                 <i class="uil uil-users-alt"></i>
-                <span class="text">Total Customers</span>
-                <span class="number">50</span>
+                <span class="text">Daily Customers</span>
+                <span class="number">
+                    @isset($dailyCustomers)
+                        {{ $dailyCustomers }}
+                    @endisset
+                </span>
             </div>
             <div class="box box3">
                 <i class="uil uil-money-insert"></i>
-                <span class="text">Total Profits</span>
-                <span class="number">50,120</span>
+                <span class="text">Daily Profits</span>
+                <span class="number">
+                    @isset($dailyProfits)
+                        ₱ {{ number_format($dailyProfits, 2) }}
+                    @endisset
+                </span>
             </div>
             <div class="box box4">
                 <i class="uil uil-box"></i>
-                <span class="text">Total Item Sold</span>
-                <span class="number">120</span>
+                <span class="text">Daily Item Sold</span>
+                <span class="number">
+                    @isset($totalItemSold)
+                        {{ $totalItemSold }}
+                    @endisset
+                </span>
             </div>
         </div>
+
+        {{-- <div class="boxes boxes2">
+            <div class="box box4">
+                <i class="uil uil-box"></i>
+                <span class="text">Total Item Sold</span>
+                <span class="number">
+                    @isset($totalItemSold)
+                        {{ $totalItemSold }}
+                    @endisset
+                </span>
+            </div>
+        </div> --}}
+        
     </div>
 
     <div class="dashboard-chart">
@@ -50,55 +79,15 @@
             <div class="transactions-report report1">
                 <strong class="text"><i class="uil uil-history"></i> Recent Item Sold</strong>
                 <ul class="recentItemSoldList">
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
-                    <hr>
-                    <li>
-                        <img src="{{ asset('storage/product_image/milo.JPG') }}">
-                        <p>Item Name: Milo <span>Quantity Sold: 2</span></p>
-                    </li>
+                    @forelse ($recentlySold as $recentSold)
+                        <li>
+                            <img src="{{ asset('storage/product_image/' . $recentSold->product->product_image) }}">
+                            <p>Product Name: {{ $recentSold->product->product_name }} <span>Quantity Sold: {{ $recentSold->quantity}}</span></p>
+                        </li>
+                        <hr>
+                    @empty
+                        <strong style="text-align: center">No Data</strong>
+                    @endforelse
                 </ul>
             </div>
 
@@ -111,100 +100,22 @@
                                 <th>#</th>
                                 <th>Customer</th>
                                 <th>Total</th>
+                                <th>Status</th>
                                 <th>Transaction Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1.</td>
-                                <td>Mark</td>
-                                <td>$300</td>
-                                <td>June 23, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>2.</td>
-                                <td>Lisa</td>
-                                <td>$450</td>
-                                <td>June 24, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>3.</td>
-                                <td>John</td>
-                                <td>$500</td>
-                                <td>June 25, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>4.</td>
-                                <td>Jane</td>
-                                <td>$350</td>
-                                <td>June 26, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>5.</td>
-                                <td>Peter</td>
-                                <td>$600</td>
-                                <td>June 27, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>6.</td>
-                                <td>Mary</td>
-                                <td>$400</td>
-                                <td>June 28, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>7.</td>
-                                <td>Paul</td>
-                                <td>$250</td>
-                                <td>June 29, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>8.</td>
-                                <td>Karen</td>
-                                <td>$700</td>
-                                <td>June 30, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>9.</td>
-                                <td>Chris</td>
-                                <td>$550</td>
-                                <td>July 1, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>10.</td>
-                                <td>Emma</td>
-                                <td>$650</td>
-                                <td>July 2, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>11.</td>
-                                <td>Emma</td>
-                                <td>$650</td>
-                                <td>July 2, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>12.</td>
-                                <td>Emma</td>
-                                <td>$650</td>
-                                <td>July 2, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>13.</td>
-                                <td>Emma</td>
-                                <td>$650</td>
-                                <td>July 2, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>14.</td>
-                                <td>Emma</td>
-                                <td>$650</td>
-                                <td>July 2, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>15.</td>
-                                <td>Emma</td>
-                                <td>$650</td>
-                                <td>July 2, 2024</td>
-                            </tr>
+                            @forelse ($transactions as $index => $transaction)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $transaction->customer->customer_name ?? 'N/A' }}</td>
+                                    <td>₱ {{ $transaction->grand_total }}</td>
+                                    <td><span class="status {{ $transaction->status === 'completed' ? 'completed' : '' }}">{{ $transaction->status }}</span></td>
+                                    <td>{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('F j, Y') }}</td>
+                                </tr>
+                            @empty
+                                <tr><td style="text-align: center" colspan="5">No Data.</tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -224,22 +135,50 @@
         var topTrendSalesData = JSON.parse(@json($topTrendSalesData));
         var monthlySalesData = JSON.parse(@json($monthlySalesData));
         
-        var trendSalesChart = new Chart(ctxTrendSales, {
-            type: 'doughnut',
-            data: topTrendSalesData,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Top 10 Trend Sales'
+        if (topTrendSalesData.datasets[0].data.length === 0) {
+            var trendSalesChart = new Chart(ctxTrendSales, {
+                type: 'doughnut',
+                data: {
+                    labels: ['No Data'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['rgba(128, 128, 128, 0.8)'],
+                        borderColor: ['rgba(128, 128, 128, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Top 5 Trend Sales'
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            // Data exists, create the chart
+            var trendSalesChart = new Chart(ctxTrendSales, {
+                type: 'doughnut',
+                data: topTrendSalesData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Top 5 Trend Sales'
+                        }
+                    }
+                }
+            });
+        }
 
         var salesChart = new Chart(ctxSalesChart, {
             type: 'bar',

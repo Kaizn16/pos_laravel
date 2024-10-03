@@ -16,13 +16,13 @@
 
     <div class="inventory-charts">
         <div class="chart box1">
-            <strong>Inventory Summary</strong>
+            <strong>Stock Value</strong>
             <canvas id="productStockValue" height="280"></canvas>
         </div>
 
         <div class="chart box2">
-            <strong>Stock Movement Report</strong>
-            <canvas id="stockMovementReport" height="280"></canvas>
+            <strong>Stock Level</strong>
+            <canvas id="StockLevel" height="280"></canvas>
         </div>
     </div>
 
@@ -30,13 +30,13 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var stockValue = document.getElementById('productStockValue');
-        var stockMovementReport = document.getElementById('stockMovementReport');
+        var StockLevel = document.getElementById('StockLevel');
         
         var ctxStockValue = stockValue.getContext('2d');
-        var ctxstockMovementReport = stockMovementReport.getContext('2d');
+        var ctxStockLevel = StockLevel.getContext('2d');
 
         var productStockValue = JSON.parse(@json($productStockValue));
-        var productstockMovementReport = JSON.parse(@json($productStockMovement));
+        var productStockLevel = JSON.parse(@json($StockLevel));
         
         var productStockValue1 = new Chart(ctxStockValue, {
             type: 'bar',
@@ -55,10 +55,11 @@
             }
         });
 
-        var productstockMovementReport = new Chart(ctxstockMovementReport, {
-            type: 'line',
-            data: productstockMovementReport,
+        var productStockLevel = new Chart(ctxStockLevel, {
+            type: 'bar',
+            data: productStockLevel,
             options: {
+                indexAxis: 'y',
                 responsive: true,
                 plugins: {
                     legend: {
@@ -66,7 +67,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'Stock Value'
+                        text: 'Stock Level'
                     }
                 }
             }

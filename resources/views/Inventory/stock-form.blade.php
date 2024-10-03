@@ -29,6 +29,7 @@
                         
                         @foreach ($products as $product)
                             <option value="{{ $product->product_id }}" 
+                                data-purchase_price="{{ $product->purchase_price }}" data-selling_price="{{ $product->selling_price }}" 
                                 @if (isset($stock) && $stock->product_id == $product->product_id) selected @endif>
                                 {{ $product->product_name }}
                             </option>
@@ -54,13 +55,33 @@
                 </div>                
 
                 <div class="form-group">
-                    <input type="number" id="stockName" name="stock_amount" value="{{ old('stock_amount', isset($stock) ? $stock->stock_amount : '') }}">
+                    <input type="number" id="purchase_price" name="purchase_price" value="" onkeypress="return isNumberKey(event)">
+                    <label class="form-label" for="purchase_price">Purchase Price</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="number" id="selling_price" name="selling_price" value="" onkeypress="return isNumberKey(event)">
+                    <label class="form-label" for="selling_price">Selling Price</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="number" id="stockName" name="stock_amount" value="{{ old('stock_amount', isset($stock) ? $stock->stock_amount : '') }}" onkeypress="return event.keyCode === 8 || event.charCode >= 48 && event.charCode <= 57">
                     <label class="form-label" for="stockName">Stock Amount</label>
                 </div>
 
                 <div class="form-group">
                     <input type="date" id="expirationDate" name="expiration_date" value="{{ old('expiration_date', isset($stock) ? $stock->expiration_date : '') }}">
                     <label class="form-label" for="expirationDate">Expiration Date</label>
+                </div>
+
+                <div class="form-group">
+                    <input name="invoice_number" id="invoice_number" placeholder="Invoice Number" value="{{ old('invoice_number', isset($purchase) ? $purchase->invoice_number : '') }}">
+                    <label class="form-label" for="notes">Invoice Number</label>
+                </div>
+
+                <div class="form-group">
+                    <textarea name="notes" id="notes" placeholder="Notes">{{ old('notes', isset($purchase) ? $purchase->notes : '') }}</textarea>
+                    <label class="form-label" for="notes">Notes</label>
                 </div>
 
                 <div class="form-footer">
@@ -111,6 +132,24 @@
         }
     });
 
+    document.addEventListener('DOMContentLoaded', function () {
+        const productSelect = document.getElementById('productSelect');
+        const purchasePriceInput = document.getElementById('purchase_price');
+        const sellingPriceInput = document.getElementById('selling_price');
+
+        function updatePurchasePrice() {
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const purchasePrice = selectedOption.getAttribute('data-purchase_price');
+            const sellingPrice = selectedOption.getAttribute('data-selling_price');
+
+            purchasePriceInput.value = purchasePrice ? purchasePrice : '';
+            sellingPriceInput.value = sellingPrice ? sellingPrice : '';
+        }
+
+        productSelect.addEventListener('change', updatePurchasePrice);
+        updatePurchasePrice();
+    });
+
     // Function to handle form submission for saving a new stocks
     $('#saveForm').on('click', function(e) {
         e.preventDefault();
@@ -120,8 +159,11 @@
             "closeButton": true,
         }
 
+        var selectedProduct = $('#productSelect').val();
+
         let formData = new FormData($('#stockForm')[0]); // Get form data
-        formData.set('status', $('#checkbox').is(':checked') ? 1 : 0); // Set status based on checkbox
+        formData.set('product_id', selectedProduct);
+        formData.set('status', $('#checkbox').is(':checked') ? 1 : 0);
 
         $.ajax({
             url: `/Inventory/Products/Stocks/Stock-Form/Create`,
@@ -130,8 +172,8 @@
             contentType: false,
             processData: false,
             success: function(response) {
-                if (response.message === 'Stock saved successfully!') {
-                    toastr.success("Stock saved successfully!");
+                if (response.message === 'Stock and purchase saved successfully!') {
+                    toastr.success("Stock and purchase saved successfully!");
                     $('#stockForm')[0].reset(); // Reset form
                     fetchStocks(); // Fetch and display updated stocks list
                     setTimeout(() => {
@@ -165,8 +207,12 @@
             "closeButton": true,
         }
 
+        var selectedProduct = $('#productSelect').val();
+        
         let formData = new FormData($('#stockForm')[0]);
+        formData.set('product_id', selectedProduct);
         formData.set('status', $('#checkbox').is(':checked') ? 1 : 0);
+        
         let stockId = $('#stockId').val();
 
         $.ajax({
@@ -199,6 +245,19 @@
             }
         });
     });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        // Allow: backspace, delete, left arrow, right arrow, tab, and decimal point
+        if (charCode === 8 || charCode === 46 || charCode === 37 || charCode === 39 || charCode === 9) {
+            return true;
+        }
+        // Ensure that it is a number and stop the keypress if it is not
+        if (charCode < 48 || charCode > 57) {
+            return false;
+        }
+        return true;
+    }
 
     // Function to fetch and display unit of measures recenlty added
     function fetchStocks() {

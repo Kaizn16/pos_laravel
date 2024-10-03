@@ -18,9 +18,14 @@ return new class extends Migration
             $table->bigInteger('total_item')->default(0);
             $table->unsignedBigInteger('discount_id')->nullable();
             $table->decimal('subtotal', 10, 2)->default(0.00);
+            $table->decimal('discount_amount', 10, 2)->default(0.00)->nullable();
             $table->decimal('grand_total', 10, 2)->default(0.00);
+            $table->decimal('pay_amount', 10, 2)->default(0.00);
+            $table->decimal('change_amount', 10, 2)->default(0.00);
             $table->unsignedBigInteger('user_id')->nullable();
             $table->enum('status', ['pending', 'completed', 'return'])->default('pending');
+            $table->unsignedBigInteger('payment_method_id')->nullable();
+            $table->timestamp('transaction_date')->nullable();
             $table->boolean('is_deleted')->default(0);
             $table->timestamps();
             
@@ -42,6 +47,11 @@ return new class extends Migration
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 
+            $table->foreign('payment_method_id')
+                ->references('payment_method_id')
+                ->on('payment_method')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

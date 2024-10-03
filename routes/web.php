@@ -14,7 +14,6 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingController;
-use App\Models\UnitOfMeasure;
 use Illuminate\Support\Facades\Auth;
 
 // Home Route
@@ -40,10 +39,12 @@ Route::prefix('Sales')->group(function () {
     Route::get('/SelectedProduct/{product_id}/View', [SalesController::class, 'preview'])->name('sales.view');
     Route::get('/NewTransaction', [TransactionController::class, 'generateNewTransaction'])->name('sales.new_transaction');
     Route::get('/Transaction/{transaction_id}/Cart', [CartController::class, 'show'])->name('cart.get');
-    Route::post('/Transaction/Cart/Add', [CartController::class, 'store'])->name('cart.store');
-    Route::put('/Transaction/Cart/{product_id}/AdjustQuantity', [CartController::class, 'update'])->name('cart.update');
-    Route::patch('/Transaction/Cart/{product_id}/Remove', [CartController::class, 'delete'])->name('cart.delete');
+    Route::post('/Transaction/Cart/Product/Add', [CartController::class, 'store'])->name('cart.store');
+    Route::put('/Transaction/Cart/Product/{product_id}/AdjustQuantity', [CartController::class, 'update'])->name('cart.update');
+    Route::patch('/Transaction/Cart/Product/{product_id}/Remove', [CartController::class, 'delete'])->name('cart.delete');
     Route::patch('/Transaction/Cart/{transaction_id}/Clear', [CartController::class, 'clear'])->name('cart.clear');
+
+    Route::post('/Transaction/Cart/Payment', [TransactionController::class, 'store'])->name('transaction.pay');
 });
 
 
@@ -83,7 +84,8 @@ Route::prefix('Inventory')->group(function () {
     Route::put('/Products/Stocks/Stock-Form/{stock_id}/Update', [StockController::class, 'update'])->name('stocks.update');
     Route::patch('/Products/Stocks/Stock-Form/{stock_id}/Delete', [StockController::class, 'delete'])->name('stocks.delete');
 
-    Route::get('Suppliers', [SupplierController::class, 'index'])->name('Inventory.suppliers'); // INITIALIZE
+    Route::get('/Products/Suppliers', [SupplierController::class, 'index'])->name('Inventory.suppliers'); // INITIALIZE
+    Route::get('/Products/Suppliers/FetchSuppliers', [SupplierController::class, 'getSuppliers'])->name('suppliers.get');
     Route::get('/Products/Supplier-Form', [SupplierController::class, 'create'])->name('suppliers.create'); // FORM
     Route::post('/Products/Suppliers', [SupplierController::class, 'store'])->name('suppliers.store'); // SUBMIT
     Route::get('/Products/Suppliers/Search', [SupplierController::class, 'search'])->name('suppliers.search'); // SEARCH
@@ -98,6 +100,5 @@ Route::prefix('Users')->group(function () {
 Route::prefix('Settings')->group(function () {
    Route::get('/', [SettingController::class, 'index'])->name('Settings.index'); 
 });
-Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Route::prefix('Settings')->middleware('auth')->group(function ()

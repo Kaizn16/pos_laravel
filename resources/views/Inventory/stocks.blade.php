@@ -4,7 +4,7 @@
     <div class="overview">
         <div class="title">
             <i class="uil uil-box"></i>
-            <span class="text"><a href="/Inventory">Inventory</a>>Stocks</span>
+            <span class="text"><a href="/Inventory">Inventory</a> > <a href="{{ route('Inventory.products') }}">Products</a> > Stocks</span>
         </div>
     </div>
 
@@ -112,8 +112,10 @@
                         backgroundColor = 'rgb(39, 180, 39)'; // green
                     } else if (stockPercentage > 25) {
                         backgroundColor = 'rgb(255, 165, 0)'; // orange
-                    } else {
+                    } else if (stockPercentage > 1 && stockPercentage < 10) {
                         backgroundColor = 'rgb(255, 0, 0)'; // red
+                    } else {
+                        backgroundColor = 'transparent';
                     }
 
                     let displayStockText = stock.stock_amount <= 1 ? 'Stock' : 'Stocks';
@@ -126,8 +128,8 @@
                             <td>
                                 ${displayStockText}: ${stock.stock_amount}
                                 <div class="stock-bar-container">
-                                    <div class="stock-bar" style="background-color: ${backgroundColor}; width: ${stockPercentage}%">
-                                    ${stockPercentage}%
+                                    <div class="stock-bar" style="background-color: ${backgroundColor}; width: ${parseInt(stockPercentage)}%">
+                                    ${parseInt(stockPercentage)}%
                                     </div>
                                 </div>
                             </td>

@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class GenderSeeder extends Seeder
+class PaymentMethodSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -16,11 +16,11 @@ class GenderSeeder extends Seeder
     {
         $currentTimestamp = Carbon::now();
 
-        $genders = [
-            ['gender_type' => 'Male', 'created_at' => $currentTimestamp],
-            ['gender_type' => 'Female', 'created_at' => $currentTimestamp],
+        $payment_methods = [
+            ['payment_method_type' => 'Cash', 'created_at' => $currentTimestamp],
+            ['payment_method_type' => 'GCash', 'created_at' => $currentTimestamp],
         ];
 
-        DB::table('gender')->insert($genders);
+        DB::table('payment_method')->insert($payment_methods);
     }
 }

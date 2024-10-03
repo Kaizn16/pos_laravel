@@ -65,7 +65,6 @@
                     <th>Category</th>
                     <th>Purchase Price</th>
                     <th>Selling Price</th>
-                    <th>UOM</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -116,9 +115,8 @@
                             <td>${product.product_code}</td>
                             <td>${product.product_name}</td>
                             <td>${product.category.category_name}</td>
-                            <td>₱ ${product.purchase_price}</td>
-                            <td>₱ ${product.selling_price}</td>
-                            <td>${product.uom.uom_name}</td>
+                            <td>₱ ${product.purchase_price} | ${product.uom.uom_name}</td>
+                            <td>₱ ${product.selling_price} | ${product.uom.uom_name}</td>   
                             <td>
                                 <span class="${product.status == 1 ? 'status-enabled' : 'status-disabled'}">
                                     ${product.status == 1 ? 'ENABLED' : 'DISABLED'}

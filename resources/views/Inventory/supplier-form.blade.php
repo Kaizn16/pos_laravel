@@ -53,15 +53,7 @@
         </div>
         <div class="form-history">
             <strong class="form-history-title"><i class="uil uil-history"></i> Recently Added</strong>
-            <ul>
-                <li>
-                    <strong>1.</strong>
-                    <strong>Supplier Name:</strong>
-                    <strong>Address:</strong>
-                    <strong>Email:</strong>
-                    <strong>Contact No.:</strong>
-                </li>
-            </ul>
+            <ul id="suppliersList"> <!-- SUPPLIERS LIST --> </ul>
         </div>
     </div>
 </div>
@@ -98,6 +90,7 @@
                 if (response.message === 'Supplier saved successfully!') {
                     toastr.success("Supplier Saved Successfully!");
                     $('#supplierForm')[0].reset();
+                    fetchSuppliers();
                 } else {
                     toastr.warning("Unable To Saved Supplier!");
                 }
@@ -107,5 +100,30 @@
             }
         });
     });
+
+    function fetchSuppliers() {
+        $.ajax({
+            url: "{{ route('suppliers.get', ['history' => 1]) }}",
+            type: 'GET',
+            success: function(suppliers) {
+                $('#suppliersList').empty();
+                suppliers.forEach((supplier, index) => {
+                    $('#suppliersList').append(`
+                        <li>
+                            <strong>${index + 1}. ${supplier.supplier_name}</strong>
+                            <strong>Address: ${supplier.address}</strong>
+                            <strong>Email: ${supplier.email}</strong>
+                            <strong>Contact No: ${supplier.contact_number}</strong>
+                        </li>
+                    `);
+                });
+            },
+            error: function(xhr, status, error) {
+                toastr.error("Failed to fetch suppliers!");
+            }
+        });
+    }
+    
+    fetchSuppliers();
 </script>
 @endsection

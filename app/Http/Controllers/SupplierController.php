@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Laravel\Ui\Presets\React;
 
 class SupplierController extends Controller
 {
@@ -112,5 +113,22 @@ class SupplierController extends Controller
                         ->paginate($tableSize);
 
         return response()->json(['data' => $suppliers->items()]);
+    }
+
+    public function getSuppliers(Request $request)
+    {
+        $query = Supplier::query();
+
+        // History Request
+        if ($request->has('history')) {
+            $suppliers = $query->orderBy('supplier_id', 'asc')->limit(15)->get();
+            return response()->json($suppliers);
+        }
+
+        // Table Request
+        $pageSize = $request->input('pageSize', 10);
+        $suppliers = $query->orderBy('supplier_id', 'asc')->paginate($pageSize);
+
+        return response()->json($suppliers);
     }
 }

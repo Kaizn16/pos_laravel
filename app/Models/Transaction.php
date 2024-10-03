@@ -17,10 +17,15 @@ class Transaction extends Model
         'customer_id',
         'total_item',
         'discount_id',
+        'discount_amount',
         'subtotal',
         'grand_total',
+        'pay_amount',
+        'change_amount',
         'user_id',
         'status',
+        'payment_method_id',
+        'transaction_date',
         'is_deleted',
     ];
 
@@ -32,6 +37,16 @@ class Transaction extends Model
     public function discount()
     {
         return $this->belongsTo(Discount::class, 'discount_id');
+    }
+    
+    public function payment_method()
+    {
+        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
+    }
+
+    public function details()
+    {
+        return $this->hasMany(TransactionDetail::class, 'transaction_id', 'transaction_id');
     }
 
     public function user()

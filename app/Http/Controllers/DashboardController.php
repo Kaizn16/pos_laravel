@@ -2,7 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Purchases;
+use App\Models\Stock;
 use Illuminate\Http\Request;
+use App\Models\Transaction;
+use App\Models\TransactionDetail;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -11,171 +17,120 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Example data for the top 10 trend sales change this later
-        $topTrendSalesData = [
-            'labels' => ['Product 1', 'Product 2', 'Product 3', 'Product 4', 'Product 5', 'Product 6', 'Product 7', 'Product 8', 'Product 9', 'Product 10'],
-            'datasets' => [
-                [
-                    'label' => 'Top 10 Best Seller',
-                    'backgroundColor' => [
-                        'rgba(254, 227, 39, 0.8)', 
-                        'rgba(253, 202, 84, 0.8)', 
-                        'rgba(246, 165, 112, 0.8)', 
-                        'rgba(241, 150, 155, 0.8)', 
-                        'rgba(240, 138, 177, 0.8)', 
-                        'rgba(199, 141, 189, 0.8)', 
-                        'rgba(146, 125, 182, 0.8)', 
-                        'rgba(93, 160, 215, 0.8)', 
-                        'rgba(0, 179, 225, 0.8)', 
-                        'rgba(101, 189, 165, 0.8)',
-                    ],
-                    'borderColor' => [
-                        'rgba(254, 227, 39, 1)', 
-                        'rgba(253, 202, 84, 1)', 
-                        'rgba(246, 165, 112, 1)', 
-                        'rgba(241, 150, 155, 1)', 
-                        'rgba(240, 138, 177, 1)', 
-                        'rgba(199, 141, 189, 1)', 
-                        'rgba(146, 125, 182, 1)', 
-                        'rgba(93, 160, 215, 1)', 
-                        'rgba(0, 179, 225, 1)', 
-                        'rgba(101, 189, 165, 1)',
-                    ],
-                    'borderWidth' => 1,
-                    'data' => [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-                ],
-            ],
-        ];
 
-        $topTrendCategoriesData = [
-            'labels' => ['Soft Drinks', 'Snacks', 'Instant Noodles', 'Canned Goods', 'Condiments', 'Bread', 'Personal Care', 'Cleaning Supplies', 'Cigarettes', 'Coffee'],
-            'datasets' => [
-                [
-                    'label' => 'Top 10 Best Categories',
-                    'backgroundColor' => [
-                        'rgba(254, 227, 39, 0.8)', 
-                        'rgba(253, 202, 84, 0.8)', 
-                        'rgba(246, 165, 112, 0.8)', 
-                        'rgba(241, 150, 155, 0.8)', 
-                        'rgba(240, 138, 177, 0.8)', 
-                        'rgba(199, 141, 189, 0.8)', 
-                        'rgba(146, 125, 182, 0.8)', 
-                        'rgba(93, 160, 215, 0.8)', 
-                        'rgba(0, 179, 225, 0.8)', 
-                        'rgba(101, 189, 165, 0.8)',
-                    ],
-                    'borderColor' => [
-                        'rgba(254, 227, 39, 1)', 
-                        'rgba(253, 202, 84, 1)', 
-                        'rgba(246, 165, 112, 1)', 
-                        'rgba(241, 150, 155, 1)', 
-                        'rgba(240, 138, 177, 1)', 
-                        'rgba(199, 141, 189, 1)', 
-                        'rgba(146, 125, 182, 1)', 
-                        'rgba(93, 160, 215, 1)', 
-                        'rgba(0, 179, 225, 1)', 
-                        'rgba(101, 189, 165, 1)',
-                    ],
-                    'borderWidth' => 1,
-                    'data' => [150, 120, 110, 100, 90, 80, 70, 60, 50, 40],
-                ],
-            ],
-        ];
-        
+        $dailySales = Transaction::where('status', 'completed')->whereDate('transaction_date', Carbon::today())->sum('grand_total');
+        $dailyCustomers = Transaction::where('status', 'completed')->whereDate('transaction_date', Carbon::today())->count();
+
+        $transactionDetails = TransactionDetail::where('is_refunded', 0)->with('product', 'transaction')->whereDate('created_at', Carbon::today())->get();
+        $totalSalesValue = 0;
+        $totalPurchaseValue = 0;
+
+        foreach ($transactionDetails as $detail) {
+            // Calculate the sales value for each transaction detail
+            $salesValue = ($detail->product_price * $detail->quantity) - $detail->transaction->discount_amount;
+            $totalSalesValue += $salesValue;
+    
+            // Fetch purchase price from related product
+            $purchasePrice = $detail->product->purchase_price;
+    
+            // Calculate the purchase value for each transaction detail
+            $purchaseValue = $purchasePrice * $detail->quantity;
+            $totalPurchaseValue += $purchaseValue;
+        }
+    
+        // Calculate daily profits
+        $dailyProfits = $totalSalesValue - $totalPurchaseValue;
+
+        $totalItemSold = TransactionDetail::where('is_refunded', 0)->whereDate('created_at', Carbon::today())->sum('quantity');
+
+        $recentlySold = TransactionDetail::with('product')->latest('created_at')->orderBy('created_at', 'desc')->take(20)->get();
+        $transactions = Transaction::where('status', '!=', 'pending')->with('customer')->latest('transaction_date')->take(15)->get();
+
+
+        // CHARTS
+        $currentYear = Carbon::now()->year;
+
+        $transactionsByMonth = Transaction::whereYear('transaction_date', $currentYear)
+            ->where('status', 'completed')
+            ->selectRaw('MONTH(transaction_date) as month, SUM(grand_total) as total_sales')
+            ->groupByRaw('MONTH(transaction_date)')
+            ->orderByRaw('MONTH(transaction_date)')
+            ->get();
 
         $monthlySalesData = [
-            'labels' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            'labels' => [],
             'datasets' => [
                 [
                     'label' => 'Monthly Sales',
-                    'backgroundColor' => [
-                        'rgba(255, 0, 0, 0.4)',    // January
-                        'rgba(255, 128, 0, 0.4)',    // February
-                        'rgba(255, 255, 0, 0.4)',    // March
-                        'rgba(128, 255, 0, 0.4)',    // April
-                        'rgba(0, 255, 0, 0.4)',   // May
-                        'rgba(0, 255, 128, 0.4)',    // June
-                        'rgba(0, 255, 255, 0.4)',    // July
-                        'rgba(0, 128, 255, 0.4)',    // August
-                        'rgba(0, 0, 255, 0.4)',    // September
-                        'rgba(128, 0, 255, 0.4)',    // October
-                        'rgba(255, 0, 255, 0.4)',   // November
-                        'rgba(255, 0, 128, 0.4)',    // December
-                    ],
-                    'borderColor' => [
-                        'rgba(255, 0, 0, 1)',    // January
-                        'rgba(255, 128, 0, 1)',    // February
-                        'rgba(255, 255, 0, 1)',    // March
-                        'rgba(128, 255, 0, 1)',    // April
-                        'rgba(0, 255, 0, 1)',   // May
-                        'rgba(0, 255, 128, 1)',    // June
-                        'rgba(0, 255, 255, 1)',    // July
-                        'rgba(0, 128, 255, 1)',    // August
-                        'rgba(0, 0, 255, 1)',    // September
-                        'rgba(128, 0, 255, 1)',    // October
-                        'rgba(255, 0, 255, 1)',   // November
-                        'rgba(255, 0, 128, 1)',    // December
-                    ],
-
+                    'backgroundColor' => [],
+                    'borderColor' => [],
                     'borderWidth' => 1,
-                    'data' => [1000, 1200, 900, 1500, 1800, 2000, 2200, 2400, 2100, 1800, 1500, 1300],
+                    'data' => [],
                 ],
             ],
         ];
+
+        foreach(range(1, 12) as $month) {
+            $monthName = Carbon::create()->month($month)->monthName;
+            $monthlySalesData['labels'][] = $monthName;
+
+            $found = $transactionsByMonth->where('month', $month)->first();
+            if ($found) {
+                $monthlySalesData['datasets'][0]['data'][] = $found->total_sales;
+            } else {
+                $monthlySalesData['datasets'][0]['data'][] = 0;
+            }
+
+            // Define RGBA colors for each month (you can adjust colors as needed)
+            $monthlySalesData['datasets'][0]['backgroundColor'][] = "rgba(0, 0, 255, 0.4)";
+            $monthlySalesData['datasets'][0]['borderColor'][] = "rgba(0, 0, 255, 1)";
+        }
         
+        // TREND PRODUCTS
+        $topProducts = TransactionDetail::select('product_id', DB::raw('SUM(quantity) as total_quantity'))
+            ->with('product')
+            ->groupBy('product_id')
+            ->orderByDesc('total_quantity')
+            ->take(5)
+            ->get();
+
+        $labels = [];
+        $data = [];
+
+        foreach ($topProducts as $index => $product) {
+            $labels[] = $product->product->product_name;
+            $data[] = $product->total_quantity;
+        }
+
+        $topTrendSalesData = [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Top 5 Best Seller',
+                    'backgroundColor' => [
+                        'rgba(254, 227, 39, 0.8)', 
+                        'rgba(253, 202, 84, 0.8)',
+                        'rgba(246, 165, 112, 0.8)', 
+                        'rgba(241, 150, 155, 0.8)', 
+                        'rgba(240, 138, 177, 0.8)', 
+                    ],
+                    'borderColor' => [
+                        'rgba(254, 227, 39, 1)', 
+                        'rgba(253, 202, 84, 1)', 
+                        'rgba(246, 165, 112, 1)', 
+                        'rgba(241, 150, 155, 1)', 
+                        'rgba(240, 138, 177, 1)',
+                    ],
+                    'borderWidth' => 1,
+                    'data' => $data,
+                ],
+            ],
+        ];
+
         return view('Dashboard.index', [
             'topTrendSalesData' => json_encode($topTrendSalesData),
-            'topTrendCategoriesData' => json_encode($topTrendCategoriesData),
             'monthlySalesData' => json_encode($monthlySalesData),
-        ]);
+        ], compact('transactions', 'recentlySold', 'dailySales', 'dailyCustomers', 'dailyProfits', 'totalItemSold'));
 
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }
